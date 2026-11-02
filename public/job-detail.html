@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Job Details & Application — JobConnect</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">
+      <div class="brand-icon">💼</div>
+      <span>JobConnect</span>
+      <span class="brand-badge">Full-Stack</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Browse Jobs</a>
+      <a href="dashboard.html" class="nav-link">Recruiter Dashboard</a>
+      <a href="post-job.html" class="btn btn-primary btn-sm">+ Post a Job</a>
+    </div>
+  </nav>
+
+  <main class="container" style="max-width: 900px;">
+    <div style="margin-bottom: 1.5rem;">
+      <a href="index.html" class="btn btn-secondary btn-sm">← Back to Job Openings</a>
+    </div>
+
+    <!-- Job Specification Card Container -->
+    <div id="jobDetailCard">
+      <div style="text-align: center; padding: 3rem; color: #64748b;">Loading job details...</div>
+    </div>
+
+    <!-- Application Form Card -->
+    <div id="applySection" class="card-box" style="margin-top: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.45rem; font-weight: 800; color: #0f172a;">Submit Your Application</h2>
+          <p style="color: #64748b; font-size: 0.9rem; margin-top: 0.2rem;">Complete the verified form below to apply directly to the hiring team.</p>
+        </div>
+        <button type="button" onclick="fillDemoCandidate()" class="btn btn-demo">
+          ✨ Fill Demo Candidate
+        </button>
+      </div>
+
+      <!-- Success Notification Banner -->
+      <div id="successBanner" class="alert-banner alert-success" style="display: none;">
+        <div>
+          <strong>🎉 Application Submitted Successfully!</strong><br />
+          Your profile has been forwarded to the recruiter. You can review your status inside the 
+          <a href="dashboard.html" style="color: #065f46; font-weight: 700; text-decoration: underline;">Recruiter Dashboard</a>.
+        </div>
+      </div>
+
+      <!-- Application Form with Real-time Client-side Validation -->
+      <form id="candidateApplyForm" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name <span class="req">*</span></label>
+            <input type="text" id="name" class="form-control" placeholder="e.g. Pravin Machhindra Thombare" required />
+            <span id="err_name" class="field-error-msg"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address <span class="req">*</span></label>
+            <input type="email" id="email" class="form-control" placeholder="e.g. candidate.demo@example.com" required />
+            <span id="err_email" class="field-error-msg"></span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">10-Digit Mobile Number <span class="req">*</span></label>
+            <input type="tel" id="phone" class="form-control" placeholder="e.g. 9823456789" required />
+            <span id="err_phone" class="field-error-msg"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Highest Qualification <span class="req">*</span></label>
+            <select id="qualification" class="form-control" required>
+              <option value="">Select qualification</option>
+              <option value="B.Tech in Software Engineering">B.Tech in Software Engineering</option>
+              <option value="B.E. Computer Technology / IT">B.E. Computer Technology / IT</option>
+              <option value="Bachelor of Computer Applications (BCA)">Bachelor of Computer Applications (BCA)</option>
+              <option value="Master of Computer Applications (MCA)">Master of Computer Applications (MCA)</option>
+              <option value="M.Tech Computer Science">M.Tech Computer Science</option>
+              <option value="Diploma in Engineering">Diploma in Engineering</option>
+            </select>
+            <span id="err_qualification" class="field-error-msg"></span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Years of Experience <span class="req">*</span></label>
+            <input type="number" id="experience" class="form-control" placeholder="e.g. 2 (or 0 for Fresher)" min="0" max="50" required />
+            <span id="err_experience" class="field-error-msg"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Online Portfolio / Resume URL <span style="font-weight:400; color:#64748b;">(Optional)</span></label>
+            <input type="url" id="resumeUrl" class="form-control" placeholder="https://example.com/resume.pdf" />
+            <span id="err_resumeUrl" class="field-error-msg"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Cover Letter / Note to Hiring Manager</label>
+          <textarea id="coverLetter" class="form-control" rows="4" placeholder="Briefly highlight why your technical skills match this opening..."></textarea>
+          <div style="text-align: right; font-size: 0.78rem; color: #94a3b8; margin-top: 0.3rem;" id="charCounter">0 / 500 characters</div>
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%; padding: 0.9rem; font-size: 1.05rem;">
+          🚀 Submit Application Now
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p><strong>JobConnect</strong> — Full-Stack Job Portal & Recruitment Management System</p>
+    <p class="footer-meta">
+      MIT Academy of Engineering | WT Lab CA Activity 2 | Student: <strong>Pravin Machhindra Thombare</strong> (PRN: 202401100022)
+    </p>
+  </footer>
+
+  <div id="toastNotification">Notification</div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const jobId = params.get('id');
+    let loadedJob = null;
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Load Job Details by ID
+    async function fetchJobDetail() {
+      if (!jobId) {
+        document.getElementById('jobDetailCard').innerHTML = `
+          <div class="alert-banner alert-danger">
+            ⚠️ No Job ID provided. Please return to the <a href="index.html" style="margin-left:5px; text-decoration:underline;">job board</a>.
+          </div>
+        `;
+        document.getElementById('applySection').style.display = 'none';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/jobs/${jobId}`);
+        const data = await res.json();
+
+        if (!data.success || !data.job) {
+          document.getElementById('jobDetailCard').innerHTML = `
+            <div class="alert-banner alert-danger">
+              ⚠️ Job posting not found or has expired.
+            </div>
+          `;
+          document.getElementById('applySection').style.display = 'none';
+          return;
+        }
+
+        loadedJob = data.job;
+        document.title = `${loadedJob.title} at ${loadedJob.company} — JobConnect`;
+
+        const skillsHtml = Array.isArray(loadedJob.skills) && loadedJob.skills.length
+          ? loadedJob.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')
+          : '';
+
+        document.getElementById('jobDetailCard').innerHTML = `
+          <div class="card-box">
+            <div class="card-top" style="align-items: center; margin-bottom: 1.5rem;">
+              <div class="company-avatar" style="width: 60px; height: 60px; font-size: 1.6rem;">
+                ${loadedJob.company.charAt(0).toUpperCase()}
+              </div>
+              <div class="card-title-area">
+                <h1 style="font-size: 1.8rem; font-weight: 800; color: #0f172a; margin-bottom: 0.3rem;">${loadedJob.title}</h1>
+                <div style="font-size: 1.05rem; font-weight: 600; color: #4f46e5;">🏢 ${loadedJob.company} &bull; <span style="color:#64748b;">${loadedJob.category || 'Technology'}</span></div>
+              </div>
+              <span class="badge-tag badge-fulltime" style="font-size: 0.85rem; padding: 0.4rem 0.9rem;">${loadedJob.type}</span>
+            </div>
+
+            <div class="card-meta-pills" style="font-size: 0.92rem; gap: 1.25rem; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; padding: 1rem 0; margin-bottom: 1.5rem;">
+              <span class="meta-pill">📍 <strong>Location:</strong> ${loadedJob.location}</span>
+              <span class="meta-pill">💰 <strong>Compensation:</strong> ${loadedJob.salary}</span>
+              <span class="meta-pill">🎓 <strong>Experience:</strong> ${loadedJob.experience}</span>
+              <span class="meta-pill">📅 <strong>Posted:</strong> ${loadedJob.postedAt}</span>
+            </div>
+
+            <div style="margin-bottom: 1.8rem;">
+              <h3 style="font-size: 1.15rem; font-weight: 700; color: #1e293b; margin-bottom: 0.6rem;">Job Role Overview</h3>
+              <p style="color: #475569; line-height: 1.7; font-size: 0.98rem;">${loadedJob.description}</p>
+            </div>
+
+            <div style="margin-bottom: 1.8rem;">
+              <h3 style="font-size: 1.15rem; font-weight: 700; color: #1e293b; margin-bottom: 0.6rem;">Qualifications & Requirements</h3>
+              <p style="color: #475569; line-height: 1.7; font-size: 0.98rem;">${loadedJob.requirements}</p>
+            </div>
+
+            ${skillsHtml ? `
+              <div>
+                <h3 style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 0.6rem;">Preferred Technical Skills</h3>
+                <div class="card-skills" style="gap: 0.5rem;">${skillsHtml}</div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+
+      } catch (err) {
+        console.error('Error fetching job details:', err);
+        document.getElementById('jobDetailCard').innerHTML = '<p style="color:red;">Error loading job posting.</p>';
+      }
+    }
+
+    // One-Click Demo Candidate Filler (For fast testing & viva presentation)
+    function fillDemoCandidate() {
+      document.getElementById('name').value = 'Pravin Machhindra Thombare';
+      document.getElementById('email').value = 'candidate.demo@example.com';
+      document.getElementById('phone').value = '9823456789';
+      document.getElementById('qualification').value = 'B.Tech in Software Engineering';
+      document.getElementById('experience').value = '2';
+      document.getElementById('resumeUrl').value = 'https://example.com/sample-resume.pdf';
+      document.getElementById('coverLetter').value = 'Motivated full-stack engineer with hands-on experience in Node.js, Express, and modern JavaScript architectures. Passionate about building scalable cloud products.';
+      
+      // Clear errors
+      ['name', 'email', 'phone', 'qualification', 'experience', 'resumeUrl'].forEach(f => {
+        document.getElementById(`err_${f}`).textContent = '';
+        document.getElementById(f).classList.remove('input-error');
+        document.getElementById(f).classList.add('input-valid');
+      });
+      updateCharCounter();
+      showToast('✨ Demo candidate details filled!');
+    }
+
+    // Real-Time Character Counter
+    const coverTextarea = document.getElementById('coverLetter');
+    const charCounter = document.getElementById('charCounter');
+    function updateCharCounter() {
+      charCounter.textContent = `${coverTextarea.value.length} / 500 characters`;
+    }
+    coverTextarea.addEventListener('input', updateCharCounter);
+
+    // Client-Side Validation Function
+    function validateApplyForm() {
+      let isValid = true;
+      const errors = {};
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const qualification = document.getElementById('qualification').value.trim();
+      const experience = document.getElementById('experience').value.trim();
+      const resumeUrl = document.getElementById('resumeUrl').value.trim();
+
+      // Name: min 3 chars
+      if (!name || name.length < 3) {
+        errors.name = 'Full name must contain at least 3 characters.';
+        isValid = false;
+      }
+
+      // Email regex
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        errors.email = 'Please enter a valid email address (e.g. you@example.com).';
+        isValid = false;
+      }
+
+      // Indian mobile 10-digits starting with 6-9
+      const phoneRegex = /^[6-9]\d{9}$/;
+      if (!phone || !phoneRegex.test(phone)) {
+        errors.phone = 'Enter a valid 10-digit Indian mobile number starting with 6-9.';
+        isValid = false;
+      }
+
+      // Qualification
+      if (!qualification) {
+        errors.qualification = 'Please select your educational qualification.';
+        isValid = false;
+      }
+
+      // Experience: 0 to 50
+      const expNum = Number(experience);
+      if (experience === '' || isNaN(expNum) || expNum < 0 || expNum > 50) {
+        errors.experience = 'Experience must be a number between 0 and 50 years.';
+        isValid = false;
+      }
+
+      // Resume URL: optional, but if entered must start with http/https
+      if (resumeUrl) {
+        try {
+          const u = new URL(resumeUrl);
+          if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+            errors.resumeUrl = 'URL must begin with http:// or https://';
+            isValid = false;
+          }
+        } catch {
+          errors.resumeUrl = 'Enter a valid URL (e.g. https://example.com/resume.pdf).';
+          isValid = false;
+        }
+      }
+
+      // Apply UI states
+      ['name', 'email', 'phone', 'qualification', 'experience', 'resumeUrl'].forEach(field => {
+        const inputElem = document.getElementById(field);
+        const errElem = document.getElementById(`err_${field}`);
+        if (errors[field]) {
+          inputElem.classList.add('input-error');
+          inputElem.classList.remove('input-valid');
+          errElem.textContent = errors[field];
+        } else {
+          inputElem.classList.remove('input-error');
+          inputElem.classList.add('input-valid');
+          errElem.textContent = '';
+        }
+      });
+
+      return isValid;
+    }
+
+    // Attach real-time onBlur validation
+    ['name', 'email', 'phone', 'qualification', 'experience', 'resumeUrl'].forEach(id => {
+      document.getElementById(id).addEventListener('blur', validateApplyForm);
+    });
+
+    // Form Submission Handler
+    document.getElementById('candidateApplyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!validateApplyForm()) {
+        showToast('⚠️ Please correct highlighted validation errors.');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting application...';
+
+      const payload = {
+        jobId: jobId,
+        name: document.getElementById('name').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        qualification: document.getElementById('qualification').value,
+        experience: document.getElementById('experience').value,
+        resumeUrl: document.getElementById('resumeUrl').value.trim(),
+        coverLetter: document.getElementById('coverLetter').value.trim()
+      };
+
+      try {
+        const res = await fetch('/api/apply', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          document.getElementById('candidateApplyForm').style.display = 'none';
+          document.getElementById('successBanner').style.display = 'block';
+          showToast('✅ Application submitted successfully!');
+          document.getElementById('successBanner').scrollIntoView({ behavior: 'smooth' });
+        } else {
+          showToast(`❌ Error: ${data.error || 'Submission failed'}`);
+          submitBtn.disabled = false;
+          submitBtn.textContent = '🚀 Submit Application Now';
+        }
+      } catch (err) {
+        console.error('Submission error:', err);
+        showToast('❌ Network error connecting to backend API');
+        submitBtn.disabled = false;
+        submitBtn.textContent = '🚀 Submit Application Now';
+      }
+    });
+
+    // Load initial job detail
+    fetchJobDetail();
+  </script>
+</body>
+</html>

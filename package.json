@@ -1,0 +1,25 @@
+{
+  "name": "jobconnect-fullstack",
+  "version": "1.0.0",
+  "description": "JobConnect — Full-Stack Job Portal & Recruitment Management System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "job-portal",
+    "express",
+    "nodejs",
+    "fullstack",
+    "rest-api",
+    "moodle"
+  ],
+  "author": "Pravin Machhindra Thombare (PRN: 202401100022)",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}

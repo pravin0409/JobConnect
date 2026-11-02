@@ -1,0 +1,124 @@
+{
+  "jobs": [
+    {
+      "id": "job_1793127494416",
+      "title": "AI / Cloud Solutions Engineer",
+      "company": "NVIDIA Enterprise",
+      "category": "Engineering",
+      "location": "Pune, India (Hybrid)",
+      "type": "Full-time",
+      "salary": "₹18 - ₹28 LPA",
+      "experience": "2 - 4 Years",
+      "skills": [
+        "Python",
+        "Node.js",
+        "Docker",
+        "PyTorch",
+        "REST APIs"
+      ],
+      "description": "Accelerate enterprise AI computing workflows by building resilient full-stack deployment services, containerized model APIs, and developer tools.",
+      "requirements": "B.Tech/B.E. in Computer Science or Software Engineering. Hands-on experience with RESTful microservices, asynchronous execution, and modern cloud deployment.",
+      "postedAt": "2026-10-27"
+    },
+    {
+      "id": "job_101",
+      "title": "Full-Stack Software Engineer",
+      "company": "Google Cloud",
+      "category": "Engineering",
+      "location": "Pune, India (Hybrid)",
+      "type": "Full-time",
+      "salary": "₹14 - ₹22 LPA",
+      "experience": "2 - 4 Years",
+      "skills": [
+        "React",
+        "Node.js",
+        "Express",
+        "REST APIs",
+        "MongoDB"
+      ],
+      "description": "We are seeking a proactive Full-Stack Engineer to design, build, and deploy high-performance web applications and cloud microservices. You will collaborate with cross-functional teams to deliver scalable backend services and responsive front-end experiences.",
+      "requirements": "Bachelor's degree in Computer Science, Software Engineering or equivalent. 2+ years of hands-on experience with modern JavaScript frameworks and server-side runtimes. Strong grasp of asynchronous programming and database design.",
+      "postedAt": "2026-10-20"
+    },
+    {
+      "id": "job_102",
+      "title": "Frontend React Developer",
+      "company": "Microsoft Azure",
+      "category": "Engineering",
+      "location": "Bengaluru, India (Remote)",
+      "type": "Full-time",
+      "salary": "₹12 - ₹18 LPA",
+      "experience": "1 - 3 Years",
+      "skills": [
+        "React 19",
+        "JavaScript (ES6+)",
+        "CSS3",
+        "Vite",
+        "Tailwind"
+      ],
+      "description": "Join our front-end customer experience team to develop intuitive, accessible, and high-performance cloud management interfaces. You will build reusable component systems and optimize client-side rendering.",
+      "requirements": "Strong proficiency in React, HTML5, CSS3, and modern browser APIs. Experience building responsive layouts and integrating RESTful APIs. Knowledge of state management and web accessibility standards.",
+      "postedAt": "2026-10-22"
+    },
+    {
+      "id": "job_103",
+      "title": "Backend API Developer",
+      "company": "Amazon Web Services (AWS)",
+      "category": "Engineering",
+      "location": "Hyderabad, India",
+      "type": "Full-time",
+      "salary": "₹15 - ₹24 LPA",
+      "experience": "3 - 5 Years",
+      "skills": [
+        "Node.js",
+        "Express",
+        "Microservices",
+        "PostgreSQL",
+        "Docker"
+      ],
+      "description": "Build high-throughput, low-latency microservices powering global cloud commerce. You will design secure RESTful APIs, manage persistent storage layers, and monitor system performance.",
+      "requirements": "Proven track record with Node.js and Express. In-depth understanding of database optimization, API security (JWT, CORS, rate limiting), and cloud containerization.",
+      "postedAt": "2026-10-24"
+    },
+    {
+      "id": "job_104",
+      "title": "UI/UX Product Designer",
+      "company": "Canva Creative",
+      "category": "Design",
+      "location": "Remote",
+      "type": "Part-time",
+      "salary": "₹8 - ₹12 LPA",
+      "experience": "1 - 2 Years",
+      "skills": [
+        "Figma",
+        "Design Systems",
+        "Prototyping",
+        "User Research"
+      ],
+      "description": "Craft delightful user journeys, interactive wireframes, and production-ready design systems for millions of creators worldwide. Work closely with product managers and engineers.",
+      "requirements": "Strong portfolio showcasing web and mobile interface designs. Proficiency in Figma and design token workflows. Excellent communication and empathy for end users.",
+      "postedAt": "2026-10-25"
+    },
+    {
+      "id": "job_105",
+      "title": "Web Development Intern",
+      "company": "TechNova Solutions",
+      "category": "Internship",
+      "location": "Mumbai, India",
+      "type": "Internship",
+      "salary": "₹25,000 / month",
+      "experience": "Fresher (0 - 1 Year)",
+      "skills": [
+        "HTML5",
+        "CSS3",
+        "JavaScript",
+        "React Basics",
+        "Git"
+      ],
+      "description": "Great learning opportunity for final-year students and freshers! Assist senior engineers in building customer-facing modules, fixing UI bugs, and testing web applications.",
+      "requirements": "Enrolled in or graduated with a Degree/Diploma in Computer Science, IT, or Software Engineering. Eagerness to learn full-stack technologies and good problem-solving mindset.",
+      "postedAt": "2026-10-26"
+    }
+  ],
+  "applications": []
+}

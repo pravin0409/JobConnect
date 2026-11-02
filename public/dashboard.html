@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recruiter & Admin Management Dashboard — JobConnect</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-card {
+      background: #ffffff;
+      border-radius: 16px;
+      max-width: 600px;
+      width: 90%;
+      padding: 2rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">
+      <div class="brand-icon">💼</div>
+      <span>JobConnect</span>
+      <span class="brand-badge">Full-Stack</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Browse Jobs</a>
+      <a href="dashboard.html" class="nav-link active">Recruiter Dashboard</a>
+      <a href="post-job.html" class="btn btn-primary btn-sm">+ Post a Job</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Recruitment & Operations Dashboard</h1>
+        <p class="page-subtitle">Manage open positions, review candidate profiles, and update application pipelines.</p>
+      </div>
+      <div style="display: flex; gap: 0.75rem;">
+        <button onclick="refreshAll()" class="btn btn-secondary btn-sm">↺ Refresh Data</button>
+        <a href="post-job.html" class="btn btn-primary btn-sm">+ Post New Opening</a>
+      </div>
+    </div>
+
+    <!-- Metrics Cards -->
+    <div class="dashboard-stats">
+      <div class="stat-card">
+        <div class="stat-icon blue">💼</div>
+        <div>
+          <div class="stat-val" id="stat_totalJobs">0</div>
+          <div class="stat-label">Total Job Listings</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple">👥</div>
+        <div>
+          <div class="stat-val" id="stat_totalApps">0</div>
+          <div class="stat-label">Applications Received</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber">⏳</div>
+        <div>
+          <div class="stat-val" id="stat_pending">0</div>
+          <div class="stat-label">Pending Review</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">🎯</div>
+        <div>
+          <div class="stat-val" id="stat_shortlisted">0</div>
+          <div class="stat-label">Shortlisted Candidates</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('tabApplications', this)">
+        Candidate Applications (<span id="appCountLabel">0</span>)
+      </button>
+      <button class="tab-btn" onclick="switchTab('tabJobs', this)">
+        Manage Job Postings (<span id="jobCountLabel">0</span>)
+      </button>
+      <button class="tab-btn" onclick="switchTab('tabApi', this)">
+        System Architecture & REST Endpoints
+      </button>
+    </div>
+
+    <!-- TAB 1: APPLICATIONS TABLE -->
+    <section id="tabApplications">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; gap: 0.75rem; flex: 1; max-width: 500px;">
+          <input type="text" id="appSearchInput" class="form-control" placeholder="Search applicant, job, or email..." onkeyup="filterApplications()" />
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <label style="font-size: 0.88rem; font-weight: 600; color: #64748b;">Filter Status:</label>
+          <select id="appStatusFilter" class="form-control" style="width: 170px;" onchange="filterApplications()">
+            <option value="All">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Under Review">Under Review</option>
+            <option value="Shortlisted">Shortlisted</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Applicant Name</th>
+              <th>Applied Role & Company</th>
+              <th>Experience & Degree</th>
+              <th>Contact Details</th>
+              <th>Application Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="applicationsTableBody">
+            <tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading applicant records...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 2: MANAGE JOBS TABLE -->
+    <section id="tabJobs" style="display: none;">
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Role Title</th>
+              <th>Company</th>
+              <th>Location</th>
+              <th>Type</th>
+              <th>Compensation</th>
+              <th>Date Posted</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="jobsTableBody">
+            <tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading jobs list...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 3: SYSTEM ARCHITECTURE & API INSPECTION -->
+    <section id="tabApi" style="display: none;">
+      <div class="card-box" style="margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.8rem; color: #0f172a;">Full-Stack Architecture Specification</h3>
+        <p style="color: #475569; margin-bottom: 1.2rem; font-size: 0.92rem;">
+          JobConnect is built as an individual Full-Stack application powered by a <strong>Node.js + Express REST API</strong> 
+          backend and a reactive client-side front-end communicating via asynchronous <code>fetch()</code> requests. 
+          Data is persistently serialized into a structured JSON file database (<code>db.json</code>).
+        </p>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; font-family: monospace; font-size: 0.88rem; line-height: 1.8;">
+          <div style="font-weight: 700; color: #1e40af; margin-bottom: 0.5rem;">📋 Tested REST API Endpoints:</div>
+          <div><strong style="color: #059669;">GET</strong> &nbsp; /api/stats &mdash; Aggregate metrics for recruiter overview</div>
+          <div><strong style="color: #059669;">GET</strong> &nbsp; /api/jobs &mdash; Search and filter job listings (title, company, type, category)</div>
+          <div><strong style="color: #059669;">GET</strong> &nbsp; /api/jobs/:id &mdash; Retrieve single job posting details</div>
+          <div><strong style="color: #2563eb;">POST</strong> /api/jobs &mdash; Publish new job posting with payload validation</div>
+          <div><strong style="color: #dc2626;">DELETE</strong> /api/jobs/:id &mdash; Remove job posting and associated candidate applications</div>
+          <div><strong style="color: #2563eb;">POST</strong> /api/apply &mdash; Submit candidate application with regex validation</div>
+          <div><strong style="color: #059669;">GET</strong> &nbsp; /api/applications &mdash; Fetch candidate submissions list</div>
+          <div><strong style="color: #d97706;">PATCH</strong> /api/applications/:id/status &mdash; Update candidate pipeline stage (Shortlisted, Rejected, etc.)</div>
+          <div><strong style="color: #dc2626;">DELETE</strong> /api/applications/:id &mdash; Delete candidate submission</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Application Detail Modal -->
+  <div id="appModal" class="modal-backdrop">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem;">
+        <h3 id="modalName" style="font-size: 1.35rem; font-weight: 800; color: #0f172a;">Candidate Details</h3>
+        <button onclick="closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #94a3b8;">&times;</button>
+      </div>
+
+      <div style="margin-bottom: 1rem; font-size: 0.92rem; line-height: 1.6;">
+        <div><strong>Applying for:</strong> <span id="modalJob" style="color:#4f46e5;"></span></div>
+        <div><strong>Email:</strong> <span id="modalEmail"></span></div>
+        <div><strong>Phone:</strong> <span id="modalPhone"></span></div>
+        <div><strong>Qualification:</strong> <span id="modalQual"></span></div>
+        <div><strong>Experience:</strong> <span id="modalExp"></span> Year(s)</div>
+        <div id="modalResumeArea" style="margin-top: 0.5rem;"></div>
+      </div>
+
+      <div style="margin-top: 1.2rem;">
+        <strong style="display: block; margin-bottom: 0.35rem;">Cover Letter / Submission Statement:</strong>
+        <p id="modalCover" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; font-size: 0.88rem; color: #334155; line-height: 1.6; max-height: 200px; overflow-y: auto;"></p>
+      </div>
+
+      <div style="text-align: right; margin-top: 1.5rem;">
+        <button onclick="closeModal()" class="btn btn-secondary btn-sm">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p><strong>JobConnect</strong> — Full-Stack Job Portal & Recruitment Management System</p>
+    <p class="footer-meta">
+      MIT Academy of Engineering | WT Lab CA Activity 2 | Student: <strong>Pravin Machhindra Thombare</strong> (PRN: 202401100022)
+    </p>
+  </footer>
+
+  <div id="toastNotification">Action completed</div>
+
+  <script>
+    let allApplications = [];
+    let allJobs = [];
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      ['tabApplications', 'tabJobs', 'tabApi'].forEach(id => {
+        document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
+      });
+    }
+
+    // Load Stats
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/stats');
+        if (res.ok) {
+          const stats = await res.json();
+          document.getElementById('stat_totalJobs').textContent = stats.totalJobs || 0;
+          document.getElementById('stat_totalApps').textContent = stats.totalApplications || 0;
+          document.getElementById('stat_pending').textContent = stats.pendingCount || 0;
+          document.getElementById('stat_shortlisted').textContent = stats.shortlistedCount || 0;
+        }
+      } catch (err) {
+        console.error('Stats error:', err);
+      }
+    }
+
+    // Load Applications
+    async function loadApplications() {
+      try {
+        const res = await fetch('/api/applications');
+        allApplications = await res.json();
+        document.getElementById('appCountLabel').textContent = allApplications.length;
+        renderApplicationsTable(allApplications);
+      } catch (err) {
+        console.error('Applications load error:', err);
+      }
+    }
+
+    function renderApplicationsTable(apps) {
+      const tbody = document.getElementById('applicationsTableBody');
+      if (!apps || apps.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 3rem; color: #94a3b8;">No applications submitted yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = apps.map(app => {
+        const cleanStatus = (app.status || 'Pending').replace(/\s+/g, '');
+        return `
+          <tr>
+            <td>
+              <div style="font-weight: 700; color: #0f172a;">${app.name}</div>
+              <div style="font-size: 0.78rem; color: #94a3b8;">Applied: ${app.appliedAt || 'Recent'}</div>
+            </td>
+            <td>
+              <div style="font-weight: 600; color: #1e293b;">${app.jobTitle}</div>
+              <div style="font-size: 0.82rem; color: #4f46e5;">${app.company}</div>
+            </td>
+            <td>
+              <div>${app.qualification || 'Graduate'}</div>
+              <div style="font-size: 0.82rem; color: #64748b;">${app.experience} Year(s) exp</div>
+            </td>
+            <td>
+              <div>${app.email}</div>
+              <div style="font-size: 0.82rem; color: #64748b;">📞 ${app.phone}</div>
+            </td>
+            <td>
+              <select onchange="updateAppStatus('${app.id}', this.value)" class="form-control" style="padding: 0.35rem 0.65rem; font-size: 0.82rem; width: 140px; border-radius: 20px; font-weight: 600;">
+                <option value="Pending" ${app.status === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
+                <option value="Under Review" ${app.status === 'Under Review' ? 'selected' : ''}>🔍 Under Review</option>
+                <option value="Shortlisted" ${app.status === 'Shortlisted' ? 'selected' : ''}>🎯 Shortlisted</option>
+                <option value="Rejected" ${app.status === 'Rejected' ? 'selected' : ''}>❌ Rejected</option>
+                <option value="Offered" ${app.status === 'Offered' ? 'selected' : ''}>🎉 Offered</option>
+              </select>
+            </td>
+            <td>
+              <div style="display: flex; gap: 0.4rem;">
+                <button onclick="viewAppModal('${app.id}')" class="btn btn-secondary btn-sm" title="View Details">👁️</button>
+                <button onclick="deleteApplication('${app.id}')" class="btn btn-danger btn-sm" title="Delete Application">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterApplications() {
+      const q = document.getElementById('appSearchInput').value.toLowerCase().trim();
+      const status = document.getElementById('appStatusFilter').value;
+
+      let filtered = allApplications;
+      if (status !== 'All') {
+        filtered = filtered.filter(a => (a.status || 'Pending').toLowerCase() === status.toLowerCase());
+      }
+      if (q) {
+        filtered = filtered.filter(a =>
+          a.name.toLowerCase().includes(q) ||
+          a.email.toLowerCase().includes(q) ||
+          a.jobTitle.toLowerCase().includes(q)
+        );
+      }
+      renderApplicationsTable(filtered);
+    }
+
+    // Update Status
+    async function updateAppStatus(id, newStatus) {
+      try {
+        const res = await fetch(`/api/applications/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast(`✅ Status changed to ${newStatus}`);
+          fetchStats();
+        } else {
+          showToast('❌ Failed to update status');
+        }
+      } catch (err) {
+        console.error('Status update error:', err);
+      }
+    }
+
+    // Delete Application
+    async function deleteApplication(id) {
+      if (!confirm('Are you sure you want to delete this application record?')) return;
+      try {
+        const res = await fetch(`/api/applications/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          showToast('🗑️ Application record removed');
+          loadApplications();
+          fetchStats();
+        }
+      } catch (err) {
+        console.error('Delete error:', err);
+      }
+    }
+
+    // Load Jobs
+    async function loadJobsList() {
+      try {
+        const res = await fetch('/api/jobs');
+        allJobs = await res.json();
+        document.getElementById('jobCountLabel').textContent = allJobs.length;
+        renderJobsTable(allJobs);
+      } catch (err) {
+        console.error('Jobs list error:', err);
+      }
+    }
+
+    function renderJobsTable(jobs) {
+      const tbody = document.getElementById('jobsTableBody');
+      if (!jobs || jobs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 3rem; color: #94a3b8;">No jobs posted yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = jobs.map(job => `
+        <tr>
+          <td>
+            <a href="job-detail.html?id=${job.id}" style="font-weight: 700; color: #0f172a; text-decoration:none;">${job.title}</a>
+          </td>
+          <td><strong>${job.company}</strong></td>
+          <td>${job.location}</td>
+          <td><span class="badge-tag badge-fulltime">${job.type}</span></td>
+          <td>${job.salary}</td>
+          <td style="color:#64748b;">${job.postedAt}</td>
+          <td>
+            <div style="display:flex; gap:0.4rem;">
+              <a href="job-detail.html?id=${job.id}" class="btn btn-secondary btn-sm" title="View Details">👁️</a>
+              <button onclick="deleteJob('${job.id}')" class="btn btn-danger btn-sm" title="Delete Job">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function deleteJob(id) {
+      if (!confirm('Are you sure you want to remove this job posting? (Associated applications will also be deleted)')) return;
+      try {
+        const res = await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          showToast('🗑️ Job posting removed');
+          refreshAll();
+        }
+      } catch (err) {
+        console.error('Delete job error:', err);
+      }
+    }
+
+    // Modal Details
+    function viewAppModal(id) {
+      const app = allApplications.find(a => String(a.id) === String(id));
+      if (!app) return;
+
+      document.getElementById('modalName').textContent = app.name;
+      document.getElementById('modalJob').textContent = `${app.jobTitle} (${app.company})`;
+      document.getElementById('modalEmail').textContent = app.email;
+      document.getElementById('modalPhone').textContent = app.phone;
+      document.getElementById('modalQual').textContent = app.qualification;
+      document.getElementById('modalExp').textContent = app.experience;
+      document.getElementById('modalCover').textContent = app.coverLetter || 'None provided';
+
+      const resumeArea = document.getElementById('modalResumeArea');
+      if (app.resumeUrl) {
+        resumeArea.innerHTML = `<strong>Resume:</strong> <a href="${app.resumeUrl}" target="_blank" style="color: #2563eb; text-decoration: underline; margin-left: 5px;">📄 Open Candidate Resume →</a>`;
+      } else {
+        resumeArea.innerHTML = `<strong>Resume:</strong> <span style="color:#94a3b8;">Not provided</span>`;
+      }
+
+      document.getElementById('appModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('appModal').classList.remove('active');
+    }
+
+    function refreshAll() {
+      fetchStats();
+      loadApplications();
+      loadJobsList();
+      showToast('🔄 Dashboard refreshed');
+    }
+
+    // Initialize
+    refreshAll();
+  </script>
+</body>
+</html>

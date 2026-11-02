@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JobConnect — Full-Stack Job Portal & Recruitment Hub</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">
+      <div class="brand-icon">💼</div>
+      <span>JobConnect</span>
+      <span class="brand-badge">Full-Stack</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link active">Browse Jobs</a>
+      <a href="dashboard.html" class="nav-link">Recruiter Dashboard</a>
+      <a href="post-job.html" class="btn btn-primary btn-sm">+ Post a Job</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section with Search & Metrics -->
+  <header class="hero">
+    <div class="hero-tag">🚀 Modern Career & Hiring Platform</div>
+    <h1>Connect with <span>Top Career Opportunities</span></h1>
+    <p>Discover hand-picked software engineering, product design, and technology roles. Apply with real-time validated submissions.</p>
+
+    <!-- Search Form -->
+    <div class="search-container">
+      <div class="search-field">
+        <span>🔍</span>
+        <input type="text" id="searchInput" placeholder="Job title, company, or tech stack (e.g. React, Node.js)..." />
+      </div>
+      <div class="search-field">
+        <span>📂</span>
+        <select id="categoryFilter">
+          <option value="">All Categories</option>
+          <option value="Engineering">Engineering</option>
+          <option value="Design">Design</option>
+          <option value="Internship">Internship</option>
+        </select>
+      </div>
+      <div class="search-field">
+        <span>⏱️</span>
+        <select id="typeFilter">
+          <option value="">All Types</option>
+          <option value="Full-time">Full-time</option>
+          <option value="Part-time">Part-time</option>
+          <option value="Internship">Internship</option>
+        </select>
+      </div>
+      <button onclick="handleSearch()" class="btn btn-primary">Search Jobs</button>
+    </div>
+
+    <!-- Quick Filter Chips -->
+    <div class="filter-chips">
+      <span class="chip active" onclick="setChipFilter('', this)">All Openings</span>
+      <span class="chip" onclick="setChipFilter('Engineering', this)">Engineering</span>
+      <span class="chip" onclick="setChipFilter('Design', this)">Design</span>
+      <span class="chip" onclick="setChipFilter('Internship', this)">Internships</span>
+      <span class="chip" onclick="setTypeChip('Full-time', this)">Full-time</span>
+      <span class="chip" onclick="setLocationChip('Remote', this)">Remote</span>
+    </div>
+
+    <!-- Live Platform Metrics -->
+    <div class="metrics-row">
+      <div class="metric-item">
+        <span class="metric-num" id="statJobs">5</span>
+        <span class="metric-label">Active Jobs</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-num" id="statApps">3</span>
+        <span class="metric-label">Candidate Applications</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-num" id="statShortlisted">1</span>
+        <span class="metric-label">Shortlisted</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-num" id="statCompanies">5</span>
+        <span class="metric-label">Partner Companies</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Job Catalog Content -->
+  <main class="container">
+    <div class="page-header">
+      <div>
+        <h2 class="page-title">Available Opportunities</h2>
+        <p class="page-subtitle" id="resultSubtitle">Loading live postings from Express REST API...</p>
+      </div>
+      <div style="display:flex; gap:0.75rem;">
+        <button onclick="resetFilters()" class="btn btn-secondary btn-sm">↺ Reset Filters</button>
+        <a href="post-job.html" class="btn btn-primary btn-sm">+ Post New Role</a>
+      </div>
+    </div>
+
+    <!-- Job Cards Grid -->
+    <div id="jobGrid" class="job-grid">
+      <!-- Dynamically populated via JavaScript -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p><strong>JobConnect</strong> — Full-Stack Job Portal & Recruitment Management System</p>
+    <p class="footer-meta">
+      MIT Academy of Engineering, Alandi, Pune | Web Technology Laboratory (WT Lab) CA Activity 2<br />
+      Developed by: <strong>Pravin Machhindra Thombare</strong> | PRN: <strong>202401100022</strong> | Division A
+    </p>
+  </footer>
+
+  <!-- Toast Notification -->
+  <div id="toastNotification">Action completed</div>
+
+  <!-- Client-Side Controller -->
+  <script>
+    let activeCategory = '';
+    let activeType = '';
+    let activeLocation = '';
+
+    // Show toast helper
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3200);
+    }
+
+    // Fetch and display portal stats
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/stats');
+        if (res.ok) {
+          const stats = await res.json();
+          document.getElementById('statJobs').textContent = stats.totalJobs || 0;
+          document.getElementById('statApps').textContent = stats.totalApplications || 0;
+          document.getElementById('statShortlisted').textContent = stats.shortlistedCount || 0;
+        }
+      } catch (err) {
+        console.error('Error fetching stats:', err);
+      }
+    }
+
+    // Load jobs from REST API
+    async function loadJobs() {
+      const search = document.getElementById('searchInput').value.trim();
+      const category = activeCategory || document.getElementById('categoryFilter').value;
+      const type = activeType || document.getElementById('typeFilter').value;
+      const location = activeLocation;
+
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (category) params.append('category', category);
+      if (type) params.append('type', type);
+      if (location) params.append('location', location);
+
+      const grid = document.getElementById('jobGrid');
+      const subtitle = document.getElementById('resultSubtitle');
+      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#64748b;">Loading open positions...</div>';
+
+      try {
+        const res = await fetch(`/api/jobs?${params.toString()}`);
+        const jobs = await res.json();
+
+        subtitle.textContent = `Showing ${jobs.length} position${jobs.length === 1 ? '' : 's'} based on your current filters`;
+
+        if (!jobs || jobs.length === 0) {
+          grid.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem; background: #fff; border-radius: 16px; border: 1px dashed #cbd5e1;">
+              <div style="font-size: 3rem; margin-bottom: 0.8rem;">🔍</div>
+              <h3 style="color:#1e293b; margin-bottom: 0.5rem;">No matching jobs found</h3>
+              <p style="color:#64748b; margin-bottom: 1.5rem;">Try modifying your keyword search or resetting category filters.</p>
+              <button onclick="resetFilters()" class="btn btn-secondary">Clear All Filters</button>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = jobs.map(job => {
+          const companyInitial = job.company ? job.company.charAt(0).toUpperCase() : 'C';
+          const typeClass = 'badge-' + (job.type ? job.type.toLowerCase().replace('-', '') : 'fulltime');
+          const skillsList = Array.isArray(job.skills) ? job.skills : [];
+
+          return `
+            <div class="job-card">
+              <div class="card-top">
+                <div class="company-avatar">${companyInitial}</div>
+                <div class="card-title-area">
+                  <a href="job-detail.html?id=${job.id}" class="job-role-title">${job.title}</a>
+                  <div class="company-name">${job.company}</div>
+                </div>
+                <span class="badge-tag ${typeClass}">${job.type || 'Full-time'}</span>
+              </div>
+
+              <div class="card-meta-pills">
+                <span class="meta-pill">📍 ${job.location || 'Remote'}</span>
+                <span class="meta-pill">💰 ${job.salary || 'Competitive'}</span>
+                <span class="meta-pill">🎓 ${job.experience || 'Experience needed'}</span>
+              </div>
+
+              <p class="card-desc">${job.description || ''}</p>
+
+              ${skillsList.length > 0 ? `
+                <div class="card-skills">
+                  ${skillsList.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                </div>
+              ` : ''}
+
+              <div class="card-footer">
+                <span class="posted-date">Posted ${job.postedAt || 'Recently'}</span>
+                <a href="job-detail.html?id=${job.id}" class="btn btn-primary btn-sm">View Details & Apply →</a>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error('Error fetching jobs:', err);
+        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#ef4444;">Failed to connect to the backend API server. Make sure server.js is running.</div>';
+      }
+    }
+
+    function handleSearch() {
+      activeCategory = document.getElementById('categoryFilter').value;
+      activeType = document.getElementById('typeFilter').value;
+      loadJobs();
+    }
+
+    function setChipFilter(cat, elem) {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      elem.classList.add('active');
+      activeCategory = cat;
+      document.getElementById('categoryFilter').value = cat;
+      loadJobs();
+    }
+
+    function setTypeChip(type, elem) {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      elem.classList.add('active');
+      activeType = type;
+      document.getElementById('typeFilter').value = type;
+      loadJobs();
+    }
+
+    function setLocationChip(loc, elem) {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      elem.classList.add('active');
+      activeLocation = loc;
+      loadJobs();
+    }
+
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('categoryFilter').value = '';
+      document.getElementById('typeFilter').value = '';
+      activeCategory = '';
+      activeType = '';
+      activeLocation = '';
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      const firstChip = document.querySelector('.chip');
+      if (firstChip) firstChip.classList.add('active');
+      loadJobs();
+    }
+
+    // Debounced search on enter key
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleSearch();
+    });
+
+    document.getElementById('categoryFilter').addEventListener('change', handleSearch);
+    document.getElementById('typeFilter').addEventListener('change', handleSearch);
+
+    // Initial load
+    fetchStats();
+    loadJobs();
+  </script>
+</body>
+</html>
